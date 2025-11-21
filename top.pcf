@@ -1,0 +1,3 @@
+set_io led 42
+set_io trig 44
+set_io echo 48
