@@ -1,3 +1,22 @@
 set_io led 42
 set_io trig 44
 set_io echo 48
+
+set_io dig0 38
+set_io dig1 28
+
+#set_io seg[0] 25
+#set_io seg[1] 26
+#set_io seg[2] 27
+#set_io seg[3] 32
+#set_io seg[4] 35
+#set_io seg[5] 31
+#set_io seg[6] 37
+
+set_io seg[6] 25
+set_io seg[5] 26
+set_io seg[4] 27
+set_io seg[3] 32
+set_io seg[2] 35
+set_io seg[1] 31
+set_io seg[0] 37

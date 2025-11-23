@@ -1,7 +1,10 @@
 module top(
     input logic echo,
     output logic led,
-    output logic trig
+    output logic trig,
+    output logic [6:0] seg,
+    output logic dig0,
+    output logic dig1
 );
 
 
@@ -18,11 +21,22 @@ module top(
         .TRIM5(1'b0), .TRIM6(1'b0), .TRIM7(1'b0), .TRIM8(1'b0), .TRIM9(1'b0)
     );
 
+    logic [31:0] echo_cycles;
+
     sensor sensor_inst (
         .clk(clk),
         .echo(echo),
         .trig(trig),
-        .led(led)
+        .led(led),
+        .echo_cycles(echo_cycles)
+    );
+
+    inches inches_display (
+        .clk(clk),
+        .echo_width(echo_cycles),
+        .seg(seg),
+        .dig0(dig0),
+        .dig1(dig1)
     );
 
 endmodule

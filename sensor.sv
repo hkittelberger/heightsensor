@@ -2,7 +2,8 @@ module sensor(
     input logic clk,
     input logic echo,
     output logic trig,
-    output logic led
+    output logic led,
+    output logic [31:0] echo_cycles
 );
 
     localparam int TRIG_PULSE = 120;
@@ -42,8 +43,11 @@ module sensor(
         if (counter >= MEASURE_CYCLE) begin
             counter <= 0;
             sent_pulse <= 0;
+
+            echo_cycles <= echo_width;
             
-            if (echo_width > 0 && echo_width < 14000)
+            // if (echo_width > 0 && echo_width < 14000)
+            if (echo_width > 0)
                 led <= 1'b1;
             else
                 led <= 1'b0;
