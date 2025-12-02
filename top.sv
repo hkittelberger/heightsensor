@@ -4,7 +4,8 @@ module top(
     output logic trig,
     output logic [6:0] seg,
     output logic dig0,
-    output logic dig1
+    output logic dig1,
+    output logic led_save
 );
 
 
@@ -36,7 +37,8 @@ module top(
         .echo_width(echo_cycles),
         .seg(seg),
         .dig0(dig0),
-        .dig1(dig1)
+        .dig1(dig1),
+        .led_save(led_save)
     );
 
 endmodule

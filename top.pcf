@@ -12,3 +12,5 @@ set_io seg[3] 32
 set_io seg[2] 35
 set_io seg[1] 31
 set_io seg[0] 37
+
+set_io led_save 11
