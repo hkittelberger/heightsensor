@@ -32,7 +32,7 @@ module top(
         .echo_cycles(echo_cycles)
     );
 
-    display_inches inches_display (
+    set_reading inches_display (
         .clk(clk),
         .echo_width(echo_cycles),
         .seg(seg),
