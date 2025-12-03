@@ -4,7 +4,18 @@ module set_reading (
     output logic [6:0]  seg,
     output logic        dig0,
     output logic        dig1,
-    output logic        led_save
+    output logic        led_save,
+    // History outputs
+    output logic [7:0]  hist_0_out,
+    output logic [7:0]  hist_1_out,
+    output logic [7:0]  hist_2_out,
+    output logic [7:0]  hist_3_out,
+    output logic [7:0]  hist_4_out,
+    output logic [7:0]  hist_5_out,
+    output logic [7:0]  hist_6_out,
+    output logic [7:0]  hist_7_out,
+    output logic [7:0]  hist_8_out,
+    output logic [7:0]  hist_9_out
 );
 
     // ----------------------------------------------------------------
@@ -47,9 +58,16 @@ module set_reading (
 
     // What value we actually send to the 7-seg
     logic [7:0] inches_display;
+    
+    // Height history signals
+    logic        save_height;
+    logic [7:0]  hist_0, hist_1, hist_2, hist_3, hist_4;
+    logic [7:0]  hist_5, hist_6, hist_7, hist_8, hist_9;
 
     // FSM: updates state, counter, and latched value
     always_ff @(posedge clk) begin
+        save_height <= 1'b0; // Default: don't save height
+        
         case (state)
             // --------------------------------------------------------
             // Ground / default: show live inches, wait for < 48"
@@ -79,10 +97,10 @@ module set_reading (
                     inches_latched <= inches_live;
 
                     if (hold_counter >= HOLD_TICKS) begin
-                        // Done: freeze the current inches_latched
+                        // Done: freeze the current inches_latched and save to history
                         state <= S_LATCHED;
-
                         flash_counter <= FLASH_TICKS;
+                        save_height <= 1'b1; // Trigger height save
                     end else begin
                         hold_counter <= hold_counter + 1;
                     end
@@ -123,7 +141,27 @@ module set_reading (
     end
 
     // ----------------------------------------------------------------
-    // 3) Instantiate display_inches module for 7-segment display
+    // 3) Instantiate height_history module to store last 10 heights
+    // ----------------------------------------------------------------
+    height_history history_inst (
+        .clk        (clk),
+        .reset      (1'b0),           // No reset for now
+        .save_height(save_height),
+        .new_height (inches_latched),
+        .history_0  (hist_0),
+        .history_1  (hist_1),
+        .history_2  (hist_2),
+        .history_3  (hist_3),
+        .history_4  (hist_4),
+        .history_5  (hist_5),
+        .history_6  (hist_6),
+        .history_7  (hist_7),
+        .history_8  (hist_8),
+        .history_9  (hist_9)
+    );
+
+    // ----------------------------------------------------------------
+    // 4) Instantiate display_inches module for 7-segment display
     // ----------------------------------------------------------------
     display_inches display_inst (
         .clk           (clk),
@@ -134,5 +172,17 @@ module set_reading (
     );
 
     assign led_save = (flash_counter != 0);
+    
+    // Connect internal history signals to outputs
+    assign hist_0_out = hist_0;
+    assign hist_1_out = hist_1;
+    assign hist_2_out = hist_2;
+    assign hist_3_out = hist_3;
+    assign hist_4_out = hist_4;
+    assign hist_5_out = hist_5;
+    assign hist_6_out = hist_6;
+    assign hist_7_out = hist_7;
+    assign hist_8_out = hist_8;
+    assign hist_9_out = hist_9;
 
 endmodule

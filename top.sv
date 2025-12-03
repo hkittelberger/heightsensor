@@ -1,10 +1,14 @@
 module top(
     input logic echo,
+    input logic btn,           // Button to cycle through history
     output logic led,
     output logic trig,
-    output logic [6:0] seg,
+    output logic [6:0] seg,    // First display (current reading)
     output logic dig0,
     output logic dig1,
+    output logic [6:0] seg2,   // Second display (history)
+    output logic dig2,
+    output logic dig3,
     output logic led_save
 );
 
@@ -23,6 +27,10 @@ module top(
     );
 
     logic [31:0] echo_cycles;
+    
+    // History signals
+    logic [7:0] hist_0, hist_1, hist_2, hist_3, hist_4;
+    logic [7:0] hist_5, hist_6, hist_7, hist_8, hist_9;
 
     sensor sensor_inst (
         .clk(clk),
@@ -38,7 +46,35 @@ module top(
         .seg(seg),
         .dig0(dig0),
         .dig1(dig1),
-        .led_save(led_save)
+        .led_save(led_save),
+        .hist_0_out(hist_0),
+        .hist_1_out(hist_1),
+        .hist_2_out(hist_2),
+        .hist_3_out(hist_3),
+        .hist_4_out(hist_4),
+        .hist_5_out(hist_5),
+        .hist_6_out(hist_6),
+        .hist_7_out(hist_7),
+        .hist_8_out(hist_8),
+        .hist_9_out(hist_9)
+    );
+    
+    history_display hist_display (
+        .clk(clk),
+        .btn(btn),
+        .hist_0(hist_0),
+        .hist_1(hist_1),
+        .hist_2(hist_2),
+        .hist_3(hist_3),
+        .hist_4(hist_4),
+        .hist_5(hist_5),
+        .hist_6(hist_6),
+        .hist_7(hist_7),
+        .hist_8(hist_8),
+        .hist_9(hist_9),
+        .seg(seg2),
+        .dig0(dig2),
+        .dig1(dig3)
     );
 
 endmodule
