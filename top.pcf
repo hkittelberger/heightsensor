@@ -1,4 +1,4 @@
-set_io led 9
+#set_io led 9
 set_io trig 44
 set_io echo 48
 
@@ -27,3 +27,12 @@ set_io seg2[0] 36
 set_io btn 20
 
 set_io led_save 11
+
+set_io RED1 4
+set_io RED0 3
+set_io GRN1 45
+set_io GRN0 47
+set_io BLU1 9
+set_io BLU0 6
+set_io HSYNC 34
+set_io VSYNC 23

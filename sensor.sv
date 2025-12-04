@@ -47,10 +47,10 @@ module sensor(
             echo_cycles <= echo_width;
             
             // if (echo_width > 0 && echo_width < 14000)
-            if (echo_width > 0)
-                led <= 1'b1;
-            else
-                led <= 1'b0;
+            // if (echo_width > 0)
+            //     led <= 1'b1;
+            // else
+            //     led <= 1'b0;
             echo_width <= 0;
         end
 
