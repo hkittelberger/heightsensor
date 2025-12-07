@@ -106,8 +106,8 @@ module top(
     logic vga_valid;
     logic h_sync, v_sync;
     
-    // VGA color signals (2 bits each for RGB)
-    logic [1:0] red_signal, green_signal, blue_signal;
+    // VGA color signals (6 bits total: 2R + 2G + 2B)
+    logic [5:0] rgb_signal;
     
     // VGA timing generator
     my_vga vga_inst (
@@ -119,24 +119,31 @@ module top(
         .v_sync(v_sync)
     );
     
-    // Pattern generator (test pattern for now)
-    my_pattern_gen pattern_inst (
-        .genclock(vga_clk),
-        .genrow(vga_row),
-        .gencol(vga_col),
-        .genvalid(vga_valid),
-        .genred(red_signal),
-        .gengreen(green_signal),
-        .genblue(blue_signal)
+    // Height VGA display (replaces pattern generator)
+    height_vga_display height_display_inst (
+        .Row(vga_row),
+        .Col(vga_col),
+        .valid(vga_valid),
+        .hist_0(hist_0),
+        .hist_1(hist_1),
+        .hist_2(hist_2),
+        .hist_3(hist_3),
+        .hist_4(hist_4),
+        .hist_5(hist_5),
+        .hist_6(hist_6),
+        .hist_7(hist_7),
+        .hist_8(hist_8),
+        .hist_9(hist_9),
+        .rgb_out(rgb_signal)
     );
     
     // Connect VGA signals to output pins
-    assign RED1 = red_signal[1];
-    assign RED0 = red_signal[0];
-    assign GRN1 = green_signal[1];
-    assign GRN0 = green_signal[0];
-    assign BLU1 = blue_signal[1];
-    assign BLU0 = blue_signal[0];
+    assign RED1 = rgb_signal[5];  // MSB of red
+    assign RED0 = rgb_signal[4];  // LSB of red
+    assign GRN1 = rgb_signal[3];  // MSB of green
+    assign GRN0 = rgb_signal[2];  // LSB of green
+    assign BLU1 = rgb_signal[1];  // MSB of blue
+    assign BLU0 = rgb_signal[0];  // LSB of blue
     assign HSYNC = h_sync;
     assign VSYNC = v_sync;
 
