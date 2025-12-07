@@ -17,11 +17,20 @@ module height_vga_display(
 
     // ROM connections
     logic [4:0] rom_col_in, rom_row_in;
-    logic [5:0] rom_0_rgb, rom_8_rgb;
+    logic [5:0] rom_0_rgb, rom_1_rgb, rom_2_rgb, rom_3_rgb, rom_4_rgb;
+    logic [5:0] rom_5_rgb, rom_6_rgb, rom_7_rgb, rom_8_rgb, rom_9_rgb;
     
-    // Instantiate digit ROMs
+    // Instantiate all digit ROMs
     rom_0 rom_0_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_0_rgb));
+    rom_1 rom_1_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_1_rgb));
+    rom_2 rom_2_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_2_rgb));
+    rom_3 rom_3_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_3_rgb));
+    rom_4 rom_4_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_4_rgb));
+    rom_5 rom_5_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_5_rgb));
+    rom_6 rom_6_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_6_rgb));
+    rom_7 rom_7_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_7_rgb));
     rom_8 rom_8_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_8_rgb));
+    rom_9 rom_9_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_9_rgb));
     
     // Define display parameters
     localparam int DIGIT_WIDTH = 16;   // Each digit is 16 pixels wide
@@ -115,19 +124,31 @@ module height_vga_display(
                     // Display tens digit
                     case (tens_digit)
                         4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        4'd2: rgb_out = rom_2_rgb;
+                        4'd3: rgb_out = rom_3_rgb;
+                        4'd4: rgb_out = rom_4_rgb;
+                        4'd5: rgb_out = rom_5_rgb;
+                        4'd6: rgb_out = rom_6_rgb;
+                        4'd7: rgb_out = rom_7_rgb;
                         4'd8: rgb_out = rom_8_rgb;
-                        // For now, only 0 and 8 are available
-                        // TODO: Add ROM modules for digits 1-7, 9
-                        default: rgb_out = 6'b000000; // Black for unsupported digits
+                        4'd9: rgb_out = rom_9_rgb;
+                        default: rgb_out = 6'b111111; // White background for invalid
                     endcase
                 end else if (in_ones_area) begin
                     // Display ones digit
                     case (ones_digit)
                         4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        4'd2: rgb_out = rom_2_rgb;
+                        4'd3: rgb_out = rom_3_rgb;
+                        4'd4: rgb_out = rom_4_rgb;
+                        4'd5: rgb_out = rom_5_rgb;
+                        4'd6: rgb_out = rom_6_rgb;
+                        4'd7: rgb_out = rom_7_rgb;
                         4'd8: rgb_out = rom_8_rgb;
-                        // For now, only 0 and 8 are available
-                        // TODO: Add ROM modules for digits 1-7, 9
-                        default: rgb_out = 6'b000000; // Black for unsupported digits
+                        4'd9: rgb_out = rom_9_rgb;
+                        default: rgb_out = 6'b111111; // White background for invalid
                     endcase
                 end
             end

@@ -34,7 +34,7 @@ module set_reading (
     // ----------------------------------------------------------------
     // 2) FSM to latch a height after 3s below 48"
     // ----------------------------------------------------------------
-    localparam logic [7:0] GROUND_THRESHOLD_INCHES = 8'd48;
+    localparam logic [7:0] GROUND_THRESHOLD_INCHES = 8'd10;
 
     // Assuming ~12 MHz HFOSC (48 MHz / 4)
     localparam int CLK_FREQ_HZ   = 12_000_000;
