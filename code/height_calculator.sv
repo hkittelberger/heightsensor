@@ -7,7 +7,7 @@ module height_calculator (
     // CONFIGURABLE GROUND DISTANCE
     // Change this value based on sensor mounting height
     // ================================================================
-    localparam logic [7:0] GROUND_DISTANCE_INCHES = 8'd72;  // 72 inches = 6 feet
+    localparam logic [7:0] GROUND_DISTANCE_INCHES = 8'd84;  // 72 inches = 7 feet
     
     // Alternative mounting heights (uncomment the one you want):
     // localparam logic [7:0] GROUND_DISTANCE_INCHES = 8'd48;  // 48 inches = 4 feet

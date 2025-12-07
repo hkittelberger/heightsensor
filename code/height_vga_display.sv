@@ -19,6 +19,7 @@ module height_vga_display(
     logic [4:0] rom_col_in, rom_row_in;
     logic [5:0] rom_0_rgb, rom_1_rgb, rom_2_rgb, rom_3_rgb, rom_4_rgb;
     logic [5:0] rom_5_rgb, rom_6_rgb, rom_7_rgb, rom_8_rgb, rom_9_rgb;
+    logic [5:0] rom_apostrophe_rgb, rom_quote_rgb;
     
     // Instantiate all digit ROMs
     rom_0 rom_0_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_0_rgb));
@@ -32,27 +33,45 @@ module height_vga_display(
     rom_8 rom_8_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_8_rgb));
     rom_9 rom_9_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_9_rgb));
     
-    // Define display parameters
-    localparam int DIGIT_WIDTH = 16;   // Each digit is 16 pixels wide
-    localparam int DIGIT_HEIGHT = 32;  // Each digit is 32 pixels tall
-    localparam int DIGIT_SPACING = 20; // Space between digits
-    localparam int ROW_HEIGHT = 40;    // Height of each height display row
-    localparam int START_X = 50;       // Starting X position
-    localparam int START_Y = 50;       // Starting Y position
+    // Instantiate symbol ROMs
+    rom_apostrophe rom_apostrophe_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_apostrophe_rgb));
+    rom_quote rom_quote_inst (.col(rom_col_in), .row(rom_row_in), .data(rom_quote_rgb));
+    
+    // Define display parameters for F'II" format (5 characters)
+    localparam int CHAR_WIDTH = 16;     // Each character is 16 pixels wide
+    localparam int CHAR_HEIGHT = 32;    // Each character is 32 pixels tall  
+    localparam int CHAR_SPACING = 2;    // Small space between characters
+    localparam int ROW_HEIGHT = 40;     // Height of each height display row
+    localparam int START_X = 50;        // Starting X position
+    localparam int START_Y = 50;        // Starting Y position
     
     // Current height being processed (0-9)
     logic [3:0] current_height_index;
     logic [7:0] current_height_value;
     
-    // Current digit being processed (tens or ones)
-    logic is_tens_digit;
-    logic [3:0] tens_digit, ones_digit;
+    // Feet and inches breakdown
+    logic [3:0] feet_digit;           // 0-8 feet
+    logic [3:0] inches_total;         // 0-11 inches
+    logic [3:0] inches_tens_digit;    // 0-1 (for 00-11 inches)
+    logic [3:0] inches_ones_digit;    // 0-9
     
-    // Position calculations
+    // Convert total inches to feet and inches
+    inches_to_feet_inches converter_inst (
+        .total_inches(current_height_value),
+        .feet(feet_digit),
+        .inches(inches_total)
+    );
+    
+    // Position calculations for F'II" format (5 characters)
     logic [9:0] height_row_start, height_row_end;
-    logic [9:0] tens_col_start, tens_col_end;
-    logic [9:0] ones_col_start, ones_col_end;
-    logic in_height_area, in_tens_area, in_ones_area;
+    logic [9:0] feet_col_start, feet_col_end;           // Position for feet digit
+    logic [9:0] apos_col_start, apos_col_end;           // Position for apostrophe 
+    logic [9:0] inch_tens_col_start, inch_tens_col_end; // Position for inches tens
+    logic [9:0] inch_ones_col_start, inch_ones_col_end; // Position for inches ones  
+    logic [9:0] quote_col_start, quote_col_end;         // Position for quote
+    
+    logic in_height_area, in_feet_area, in_apos_area;
+    logic in_inch_tens_area, in_inch_ones_area, in_quote_area;
     
     // Determine which height we're displaying based on row
     always_comb begin
@@ -77,52 +96,103 @@ module height_vga_display(
             default: current_height_value = 8'd0;
         endcase
         
-        // Calculate tens and ones digits
-        tens_digit = current_height_value / 8'd10;
-        ones_digit = current_height_value % 8'd10;
+        // Calculate inches digits (0-11 becomes 00-11)
+        inches_tens_digit = inches_total / 4'd10;  // 0 or 1
+        inches_ones_digit = inches_total % 4'd10;  // 0-9 (but limited to 0-1 for tens)
     end
     
-    // Calculate position boundaries for current height row
+    // Calculate position boundaries for current height row (F'II" format)
     always_comb begin
         height_row_start = START_Y + (current_height_index * ROW_HEIGHT);
-        height_row_end = height_row_start + DIGIT_HEIGHT;
+        height_row_end = height_row_start + CHAR_HEIGHT;
         
-        tens_col_start = START_X;
-        tens_col_end = tens_col_start + DIGIT_WIDTH;
+        // Character positions: F ' I I "
+        feet_col_start = START_X;
+        feet_col_end = feet_col_start + CHAR_WIDTH;
         
-        ones_col_start = tens_col_end + DIGIT_SPACING;
-        ones_col_end = ones_col_start + DIGIT_WIDTH;
+        apos_col_start = feet_col_end + CHAR_SPACING;
+        apos_col_end = apos_col_start + CHAR_WIDTH;
+        
+        inch_tens_col_start = apos_col_end + CHAR_SPACING;
+        inch_tens_col_end = inch_tens_col_start + CHAR_WIDTH;
+        
+        inch_ones_col_start = inch_tens_col_end + CHAR_SPACING;
+        inch_ones_col_end = inch_ones_col_start + CHAR_WIDTH;
+        
+        quote_col_start = inch_ones_col_end + CHAR_SPACING;
+        quote_col_end = quote_col_start + CHAR_WIDTH;
         
         // Check if we're in the height display area
         in_height_area = (Row >= height_row_start && Row < height_row_end);
-        in_tens_area = (Col >= tens_col_start && Col < tens_col_end);
-        in_ones_area = (Col >= ones_col_start && Col < ones_col_end);
+        in_feet_area = (Col >= feet_col_start && Col < feet_col_end);
+        in_apos_area = (Col >= apos_col_start && Col < apos_col_end);
+        in_inch_tens_area = (Col >= inch_tens_col_start && Col < inch_tens_col_end);
+        in_inch_ones_area = (Col >= inch_ones_col_start && Col < inch_ones_col_end);
+        in_quote_area = (Col >= quote_col_start && Col < quote_col_end);
     end
     
     // ROM coordinate calculation
     always_comb begin
-        if (in_height_area && in_tens_area) begin
-            rom_col_in = (Col - tens_col_start) >> 1;  // Scale down by 2
-            rom_row_in = (Row - height_row_start) >> 1; // Scale down by 2
-        end else if (in_height_area && in_ones_area) begin
-            rom_col_in = (Col - ones_col_start) >> 1;  // Scale down by 2
-            rom_row_in = (Row - height_row_start) >> 1; // Scale down by 2
+        if (in_height_area) begin
+            if (in_feet_area) begin
+                rom_col_in = (Col - feet_col_start) >> 1;
+                rom_row_in = (Row - height_row_start) >> 1;
+            end else if (in_apos_area) begin
+                rom_col_in = (Col - apos_col_start) >> 1;
+                rom_row_in = (Row - height_row_start) >> 1;
+            end else if (in_inch_tens_area) begin
+                rom_col_in = (Col - inch_tens_col_start) >> 1;
+                rom_row_in = (Row - height_row_start) >> 1;
+            end else if (in_inch_ones_area) begin
+                rom_col_in = (Col - inch_ones_col_start) >> 1;
+                rom_row_in = (Row - height_row_start) >> 1;
+            end else if (in_quote_area) begin
+                rom_col_in = (Col - quote_col_start) >> 1;
+                rom_row_in = (Row - height_row_start) >> 1;
+            end else begin
+                rom_col_in = 5'd0;
+                rom_row_in = 5'd0;
+            end
         end else begin
             rom_col_in = 5'd0;
             rom_row_in = 5'd0;
         end
     end
     
-    // Output RGB based on what we're displaying
+    // Output RGB based on what we're displaying (F'II" format)
     always_comb begin
         if (valid) begin
             // Default to white background
             rgb_out = 6'b111111;
             
             if (in_height_area) begin
-                if (in_tens_area) begin
-                    // Display tens digit
-                    case (tens_digit)
+                if (in_feet_area) begin
+                    // Display feet digit
+                    case (feet_digit)
+                        4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        4'd2: rgb_out = rom_2_rgb;
+                        4'd3: rgb_out = rom_3_rgb;
+                        4'd4: rgb_out = rom_4_rgb;
+                        4'd5: rgb_out = rom_5_rgb;
+                        4'd6: rgb_out = rom_6_rgb;
+                        4'd7: rgb_out = rom_7_rgb;
+                        4'd8: rgb_out = rom_8_rgb;
+                        default: rgb_out = 6'b111111;
+                    endcase
+                end else if (in_apos_area) begin
+                    // Display apostrophe
+                    rgb_out = rom_apostrophe_rgb;
+                end else if (in_inch_tens_area) begin
+                    // Display inches tens digit
+                    case (inches_tens_digit)
+                        4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        default: rgb_out = 6'b111111;
+                    endcase
+                end else if (in_inch_ones_area) begin
+                    // Display inches ones digit
+                    case (inches_ones_digit)
                         4'd0: rgb_out = rom_0_rgb;
                         4'd1: rgb_out = rom_1_rgb;
                         4'd2: rgb_out = rom_2_rgb;
@@ -133,23 +203,11 @@ module height_vga_display(
                         4'd7: rgb_out = rom_7_rgb;
                         4'd8: rgb_out = rom_8_rgb;
                         4'd9: rgb_out = rom_9_rgb;
-                        default: rgb_out = 6'b111111; // White background for invalid
+                        default: rgb_out = 6'b111111;
                     endcase
-                end else if (in_ones_area) begin
-                    // Display ones digit
-                    case (ones_digit)
-                        4'd0: rgb_out = rom_0_rgb;
-                        4'd1: rgb_out = rom_1_rgb;
-                        4'd2: rgb_out = rom_2_rgb;
-                        4'd3: rgb_out = rom_3_rgb;
-                        4'd4: rgb_out = rom_4_rgb;
-                        4'd5: rgb_out = rom_5_rgb;
-                        4'd6: rgb_out = rom_6_rgb;
-                        4'd7: rgb_out = rom_7_rgb;
-                        4'd8: rgb_out = rom_8_rgb;
-                        4'd9: rgb_out = rom_9_rgb;
-                        default: rgb_out = 6'b111111; // White background for invalid
-                    endcase
+                end else if (in_quote_area) begin
+                    // Display quote mark
+                    rgb_out = rom_quote_rgb;
                 end
             end
         end else begin
