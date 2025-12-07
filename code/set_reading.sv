@@ -22,19 +22,30 @@ module set_reading (
     // 1) Convert echo width to inches (0–99")
     // ----------------------------------------------------------------
     logic [15:0] inches_raw;
-    logic [7:0]  inches_live;   // raw live distance from sensor
+    logic [7:0]  inches_distance;   // raw live distance from sensor
+    logic [7:0]  inches_live;       // calculated height (ground_distance - sensor_distance)
 
     convert_echo_to_inches convert_inst (
         .clk       (clk),
         .echo_width(echo_width),
         .inches_raw(inches_raw),
-        .inches    (inches_live)
+        .inches    (inches_distance)
     );
 
     // ----------------------------------------------------------------
-    // 2) FSM to latch a height after 3s below 48"
+    // 2) Convert distance to height using ground reference
     // ----------------------------------------------------------------
-    localparam logic [7:0] GROUND_THRESHOLD_INCHES = 8'd10;
+    height_calculator height_calc_inst (
+        .distance_inches(inches_distance),
+        .height_inches(inches_live)
+    );
+
+    // ----------------------------------------------------------------
+    // 3) FSM to latch a height after 3s when person detected
+    // ----------------------------------------------------------------
+    // Height threshold - minimum height to trigger measurement (in inches)
+    // This prevents ground clutter from triggering measurements
+    localparam logic [7:0] HEIGHT_THRESHOLD_INCHES = 8'd24;  // 12 inches = 1 foot minimum height
 
     // Assuming ~12 MHz HFOSC (48 MHz / 4)
     localparam int CLK_FREQ_HZ   = 12_000_000;
@@ -70,14 +81,14 @@ module set_reading (
         
         case (state)
             // --------------------------------------------------------
-            // Ground / default: show live inches, wait for < 48"
+            // Default: show live height, wait for person detection
             // --------------------------------------------------------
             S_DEFAULT: begin
                 hold_counter   <= 32'd0;
                 inches_latched <= inches_latched; // keep old value, but not used in this state
 
-                if (inches_live < GROUND_THRESHOLD_INCHES) begin
-                    // Person just entered: start timing
+                if (inches_live >= HEIGHT_THRESHOLD_INCHES) begin
+                    // Person detected (height >= threshold): start timing
                     state         <= S_TIMING;
                     hold_counter  <= 32'd1;
                     inches_latched <= inches_live;   // start with current value
@@ -85,16 +96,18 @@ module set_reading (
             end
 
             // --------------------------------------------------------
-            // Timing: still below 48", counting to 3 seconds
+            // Timing: person present, counting to 3 seconds
             // --------------------------------------------------------
             S_TIMING: begin
-                if (inches_live >= GROUND_THRESHOLD_INCHES) begin
+                if (inches_live < HEIGHT_THRESHOLD_INCHES) begin
                     // Person left before 3 seconds – abort and go back to default
                     state        <= S_DEFAULT;
                     hold_counter <= 32'd0;
                 end else begin
-                    // Still under the doorway; keep updating "best" value
-                    inches_latched <= inches_live;
+                    // Still present; keep updating to get maximum height
+                    if (inches_live > inches_latched) begin
+                        inches_latched <= inches_live;  // Keep the tallest measurement
+                    end
 
                     if (hold_counter >= HOLD_TICKS) begin
                         // Done: freeze the current inches_latched and save to history
@@ -108,12 +121,12 @@ module set_reading (
             end
 
             // --------------------------------------------------------
-            // Latched: keep showing saved value until ground again
+            // Latched: keep showing saved value until person leaves
             // --------------------------------------------------------
             S_LATCHED: begin
-                // Stay latched, ignore live distance for display,
-                // but watch for the person leaving (back to ground)
-                if (inches_live >= GROUND_THRESHOLD_INCHES) begin
+                // Stay latched, ignore live height for display,
+                // but watch for the person leaving (height drops below threshold)
+                if (inches_live < HEIGHT_THRESHOLD_INCHES) begin
                     state        <= S_DEFAULT;
                     hold_counter <= 32'd0;
                 end
@@ -131,8 +144,8 @@ module set_reading (
     end
 
     // Decide what goes on the display:
-    // - DEFAULT/TIMING: show live inches
-    // - LATCHED: show frozen height
+    // - DEFAULT/TIMING: show live height
+    // - LATCHED: show saved height measurement
     always_comb begin
         case (state)
             S_LATCHED: inches_display = inches_latched;
