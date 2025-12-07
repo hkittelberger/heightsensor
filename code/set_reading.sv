@@ -5,6 +5,8 @@ module set_reading (
     output logic        dig0,
     output logic        dig1,
     output logic        led_save,
+    // Live height output
+    output logic [7:0]  live_height_out,
     // History outputs
     output logic [7:0]  hist_0_out,
     output logic [7:0]  hist_1_out,
@@ -45,7 +47,7 @@ module set_reading (
     // ----------------------------------------------------------------
     // Height threshold - minimum height to trigger measurement (in inches)
     // This prevents ground clutter from triggering measurements
-    localparam logic [7:0] HEIGHT_THRESHOLD_INCHES = 8'd24;  // 12 inches = 1 foot minimum height
+    localparam logic [7:0] HEIGHT_THRESHOLD_INCHES = 8'd36;  // 36 inches = 3 feet minimum height
 
     // Assuming ~12 MHz HFOSC (48 MHz / 4)
     localparam int CLK_FREQ_HZ   = 12_000_000;
@@ -197,5 +199,8 @@ module set_reading (
     assign hist_7_out = hist_7;
     assign hist_8_out = hist_8;
     assign hist_9_out = hist_9;
+    
+    // Output live height
+    assign live_height_out = inches_live;
 
 endmodule

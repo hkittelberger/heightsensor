@@ -48,9 +48,10 @@ module top(
 
     logic [31:0] echo_cycles;
     
-    // History signals
+    // History signals and live height
     logic [7:0] hist_0, hist_1, hist_2, hist_3, hist_4;
     logic [7:0] hist_5, hist_6, hist_7, hist_8, hist_9;
+    logic [7:0] live_height;
 
     sensor sensor_inst (
         .clk(clk),
@@ -67,6 +68,7 @@ module top(
         .dig0(dig0),
         .dig1(dig1),
         .led_save(led_save),
+        .live_height_out(live_height),
         .hist_0_out(hist_0),
         .hist_1_out(hist_1),
         .hist_2_out(hist_2),
@@ -124,6 +126,7 @@ module top(
         .Row(vga_row),
         .Col(vga_col),
         .valid(vga_valid),
+        .live_reading(live_height),
         .hist_0(hist_0),
         .hist_1(hist_1),
         .hist_2(hist_2),

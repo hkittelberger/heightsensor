@@ -12,6 +12,7 @@ module height_vga_display(
     input logic [7:0] hist_7,
     input logic [7:0] hist_8,
     input logic [7:0] hist_9,  // Oldest
+    input logic [7:0] live_reading,  // Current live sensor reading
     output logic [5:0] rgb_out
 );
 
@@ -42,18 +43,32 @@ module height_vga_display(
     localparam int CHAR_HEIGHT = 32;    // Each character is 32 pixels tall  
     localparam int CHAR_SPACING = 2;    // Small space between characters
     localparam int ROW_HEIGHT = 40;     // Height of each height display row
-    localparam int START_X = 50;        // Starting X position
-    localparam int START_Y = 50;        // Starting Y position
+    
+    // History display area (left side)
+    localparam int HISTORY_START_X = 50;        // Starting X for history
+    localparam int HISTORY_START_Y = 50;        // Starting Y for history
+    localparam int HISTORY_WIDTH = 100;         // Width of history area (5 chars * 16 + spacing)
+    
+    // Live reading display area (right side)  
+    localparam int LIVE_START_X = 400;          // Starting X for live reading
+    localparam int LIVE_START_Y = 100;          // Starting Y for live reading (well separated from history)
+    localparam int LIVE_WIDTH = 100;            // Width of live reading area
     
     // Current height being processed (0-9)
     logic [3:0] current_height_index;
     logic [7:0] current_height_value;
     
-    // Feet and inches breakdown
+    // Feet and inches breakdown for history
     logic [3:0] feet_digit;           // 0-8 feet
     logic [3:0] inches_total;         // 0-11 inches
     logic [3:0] inches_tens_digit;    // 0-1 (for 00-11 inches)
     logic [3:0] inches_ones_digit;    // 0-9
+    
+    // Feet and inches breakdown for live reading
+    logic [3:0] live_feet_digit;
+    logic [3:0] live_inches_total;
+    logic [3:0] live_inches_tens_digit;
+    logic [3:0] live_inches_ones_digit;
     
     // Convert total inches to feet and inches
     inches_to_feet_inches converter_inst (
@@ -62,7 +77,15 @@ module height_vga_display(
         .inches(inches_total)
     );
     
+    // Convert live reading to feet and inches
+    inches_to_feet_inches live_converter_inst (
+        .total_inches(live_reading),
+        .feet(live_feet_digit),
+        .inches(live_inches_total)
+    );
+    
     // Position calculations for F'II" format (5 characters)
+    // History area (left side)
     logic [9:0] height_row_start, height_row_end;
     logic [9:0] feet_col_start, feet_col_end;           // Position for feet digit
     logic [9:0] apos_col_start, apos_col_end;           // Position for apostrophe 
@@ -70,13 +93,22 @@ module height_vga_display(
     logic [9:0] inch_ones_col_start, inch_ones_col_end; // Position for inches ones  
     logic [9:0] quote_col_start, quote_col_end;         // Position for quote
     
-    logic in_height_area, in_feet_area, in_apos_area;
-    logic in_inch_tens_area, in_inch_ones_area, in_quote_area;
+    // Live reading area (right side)
+    logic [9:0] live_feet_col_start, live_feet_col_end;
+    logic [9:0] live_apos_col_start, live_apos_col_end;
+    logic [9:0] live_inch_tens_col_start, live_inch_tens_col_end;
+    logic [9:0] live_inch_ones_col_start, live_inch_ones_col_end;
+    logic [9:0] live_quote_col_start, live_quote_col_end;
+    
+    // Area detection flags
+    logic in_history_area, in_live_area;
+    logic in_feet_area, in_apos_area, in_inch_tens_area, in_inch_ones_area, in_quote_area;
+    logic in_live_feet_area, in_live_apos_area, in_live_inch_tens_area, in_live_inch_ones_area, in_live_quote_area;
     
     // Determine which height we're displaying based on row
     always_comb begin
-        if (Row >= START_Y && Row < START_Y + (10 * ROW_HEIGHT)) begin
-            current_height_index = (Row - START_Y) / ROW_HEIGHT;
+        if (Row >= HISTORY_START_Y && Row < HISTORY_START_Y + (10 * ROW_HEIGHT)) begin
+            current_height_index = (Row - HISTORY_START_Y) / ROW_HEIGHT;
         end else begin
             current_height_index = 4'd0;
         end
@@ -103,11 +135,12 @@ module height_vga_display(
     
     // Calculate position boundaries for current height row (F'II" format)
     always_comb begin
-        height_row_start = START_Y + (current_height_index * ROW_HEIGHT);
+        // History area calculations (left side)
+        height_row_start = HISTORY_START_Y + (current_height_index * ROW_HEIGHT);
         height_row_end = height_row_start + CHAR_HEIGHT;
         
-        // Character positions: F ' I I "
-        feet_col_start = START_X;
+        // History character positions: F ' I I "
+        feet_col_start = HISTORY_START_X;
         feet_col_end = feet_col_start + CHAR_WIDTH;
         
         apos_col_start = feet_col_end + CHAR_SPACING;
@@ -122,18 +155,52 @@ module height_vga_display(
         quote_col_start = inch_ones_col_end + CHAR_SPACING;
         quote_col_end = quote_col_start + CHAR_WIDTH;
         
-        // Check if we're in the height display area
-        in_height_area = (Row >= height_row_start && Row < height_row_end);
-        in_feet_area = (Col >= feet_col_start && Col < feet_col_end);
-        in_apos_area = (Col >= apos_col_start && Col < apos_col_end);
-        in_inch_tens_area = (Col >= inch_tens_col_start && Col < inch_tens_col_end);
-        in_inch_ones_area = (Col >= inch_ones_col_start && Col < inch_ones_col_end);
-        in_quote_area = (Col >= quote_col_start && Col < quote_col_end);
+        // Live reading positions (right side): F ' I I "
+        live_feet_col_start = LIVE_START_X;
+        live_feet_col_end = live_feet_col_start + CHAR_WIDTH;
+        
+        live_apos_col_start = live_feet_col_end + CHAR_SPACING;
+        live_apos_col_end = live_apos_col_start + CHAR_WIDTH;
+        
+        live_inch_tens_col_start = live_apos_col_end + CHAR_SPACING;
+        live_inch_tens_col_end = live_inch_tens_col_start + CHAR_WIDTH;
+        
+        live_inch_ones_col_start = live_inch_tens_col_end + CHAR_SPACING;
+        live_inch_ones_col_end = live_inch_ones_col_start + CHAR_WIDTH;
+        
+        live_quote_col_start = live_inch_ones_col_end + CHAR_SPACING;
+        live_quote_col_end = live_quote_col_start + CHAR_WIDTH;
+        
+        // Area detection with strict column constraints
+        in_history_area = (Row >= HISTORY_START_Y && Row < HISTORY_START_Y + (10 * ROW_HEIGHT)) &&
+                         (Row >= height_row_start && Row < height_row_end) &&
+                         (Col >= HISTORY_START_X && Col < HISTORY_START_X + HISTORY_WIDTH);
+        in_live_area = (Row >= LIVE_START_Y && Row < LIVE_START_Y + CHAR_HEIGHT) &&
+                       (Col >= LIVE_START_X && Col < LIVE_START_X + LIVE_WIDTH);
+        
+        // History character area detection
+        in_feet_area = in_history_area && (Col >= feet_col_start && Col < feet_col_end);
+        in_apos_area = in_history_area && (Col >= apos_col_start && Col < apos_col_end);
+        in_inch_tens_area = in_history_area && (Col >= inch_tens_col_start && Col < inch_tens_col_end);
+        in_inch_ones_area = in_history_area && (Col >= inch_ones_col_start && Col < inch_ones_col_end);
+        in_quote_area = in_history_area && (Col >= quote_col_start && Col < quote_col_end);
+        
+        // Live reading character area detection  
+        in_live_feet_area = in_live_area && (Col >= live_feet_col_start && Col < live_feet_col_end);
+        in_live_apos_area = in_live_area && (Col >= live_apos_col_start && Col < live_apos_col_end);
+        in_live_inch_tens_area = in_live_area && (Col >= live_inch_tens_col_start && Col < live_inch_tens_col_end);
+        in_live_inch_ones_area = in_live_area && (Col >= live_inch_ones_col_start && Col < live_inch_ones_col_end);
+        in_live_quote_area = in_live_area && (Col >= live_quote_col_start && Col < live_quote_col_end);
+        
+        // Calculate live reading digits
+        live_inches_tens_digit = live_inches_total / 4'd10;
+        live_inches_ones_digit = live_inches_total % 4'd10;
     end
     
     // ROM coordinate calculation
     always_comb begin
-        if (in_height_area) begin
+        if (in_history_area || in_live_area) begin
+            // History area coordinates
             if (in_feet_area) begin
                 rom_col_in = (Col - feet_col_start) >> 1;
                 rom_row_in = (Row - height_row_start) >> 1;
@@ -149,6 +216,22 @@ module height_vga_display(
             end else if (in_quote_area) begin
                 rom_col_in = (Col - quote_col_start) >> 1;
                 rom_row_in = (Row - height_row_start) >> 1;
+            // Live reading area coordinates
+            end else if (in_live_feet_area) begin
+                rom_col_in = (Col - live_feet_col_start) >> 1;
+                rom_row_in = (Row - LIVE_START_Y) >> 1;
+            end else if (in_live_apos_area) begin
+                rom_col_in = (Col - live_apos_col_start) >> 1;
+                rom_row_in = (Row - LIVE_START_Y) >> 1;
+            end else if (in_live_inch_tens_area) begin
+                rom_col_in = (Col - live_inch_tens_col_start) >> 1;
+                rom_row_in = (Row - LIVE_START_Y) >> 1;
+            end else if (in_live_inch_ones_area) begin
+                rom_col_in = (Col - live_inch_ones_col_start) >> 1;
+                rom_row_in = (Row - LIVE_START_Y) >> 1;
+            end else if (in_live_quote_area) begin
+                rom_col_in = (Col - live_quote_col_start) >> 1;
+                rom_row_in = (Row - LIVE_START_Y) >> 1;
             end else begin
                 rom_col_in = 5'd0;
                 rom_row_in = 5'd0;
@@ -162,10 +245,11 @@ module height_vga_display(
     // Output RGB based on what we're displaying (F'II" format)
     always_comb begin
         if (valid) begin
-            // Default to white background
-            rgb_out = 6'b111111;
+            // Default to dark blue background
+            rgb_out = 6'b000011;
             
-            if (in_height_area) begin
+            // History area (left side)
+            if (in_history_area) begin
                 if (in_feet_area) begin
                     // Display feet digit
                     case (feet_digit)
@@ -178,20 +262,17 @@ module height_vga_display(
                         4'd6: rgb_out = rom_6_rgb;
                         4'd7: rgb_out = rom_7_rgb;
                         4'd8: rgb_out = rom_8_rgb;
-                        default: rgb_out = 6'b111111;
+                        default: rgb_out = 6'b000011;  // Dark blue background
                     endcase
                 end else if (in_apos_area) begin
-                    // Display apostrophe
                     rgb_out = rom_apostrophe_rgb;
                 end else if (in_inch_tens_area) begin
-                    // Display inches tens digit
                     case (inches_tens_digit)
                         4'd0: rgb_out = rom_0_rgb;
                         4'd1: rgb_out = rom_1_rgb;
-                        default: rgb_out = 6'b111111;
+                        default: rgb_out = 6'b000011;  // Dark blue background
                     endcase
                 end else if (in_inch_ones_area) begin
-                    // Display inches ones digit
                     case (inches_ones_digit)
                         4'd0: rgb_out = rom_0_rgb;
                         4'd1: rgb_out = rom_1_rgb;
@@ -203,15 +284,58 @@ module height_vga_display(
                         4'd7: rgb_out = rom_7_rgb;
                         4'd8: rgb_out = rom_8_rgb;
                         4'd9: rgb_out = rom_9_rgb;
-                        default: rgb_out = 6'b111111;
+                        default: rgb_out = 6'b000011;  // Dark blue background
                     endcase
                 end else if (in_quote_area) begin
-                    // Display quote mark
                     rgb_out = rom_quote_rgb;
                 end
+            // Live reading area (right side)
+            end else if (in_live_area) begin
+                if (in_live_feet_area) begin
+                    // Display live feet digit
+                    case (live_feet_digit)
+                        4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        4'd2: rgb_out = rom_2_rgb;
+                        4'd3: rgb_out = rom_3_rgb;
+                        4'd4: rgb_out = rom_4_rgb;
+                        4'd5: rgb_out = rom_5_rgb;
+                        4'd6: rgb_out = rom_6_rgb;
+                        4'd7: rgb_out = rom_7_rgb;
+                        4'd8: rgb_out = rom_8_rgb;
+                        default: rgb_out = 6'b000011;  // Dark blue background
+                    endcase
+                end else if (in_live_apos_area) begin
+                    rgb_out = rom_apostrophe_rgb;
+                end else if (in_live_inch_tens_area) begin
+                    case (live_inches_tens_digit)
+                        4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        default: rgb_out = 6'b000011;  // Dark blue background
+                    endcase
+                end else if (in_live_inch_ones_area) begin
+                    case (live_inches_ones_digit)
+                        4'd0: rgb_out = rom_0_rgb;
+                        4'd1: rgb_out = rom_1_rgb;
+                        4'd2: rgb_out = rom_2_rgb;
+                        4'd3: rgb_out = rom_3_rgb;
+                        4'd4: rgb_out = rom_4_rgb;
+                        4'd5: rgb_out = rom_5_rgb;
+                        4'd6: rgb_out = rom_6_rgb;
+                        4'd7: rgb_out = rom_7_rgb;
+                        4'd8: rgb_out = rom_8_rgb;
+                        4'd9: rgb_out = rom_9_rgb;
+                        default: rgb_out = 6'b000011;  // Dark blue background
+                    endcase
+                end else if (in_live_quote_area) begin
+                    rgb_out = rom_quote_rgb;
+                end
+            // Keep the background dark blue everywhere else
+            end else begin
+                // Already set to dark blue at the start
             end
         end else begin
-            // Outside valid area - black
+            // Outside valid VGA area - black
             rgb_out = 6'b000000;
         end
     end
