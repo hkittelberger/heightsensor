@@ -1,0 +1,13 @@
+set_io -pullup yes clk_12M 20
+
+set_io hsync 46
+set_io vsync 2
+
+set_io rgb_out[0] 43
+set_io rgb_out[1] 34
+
+set_io rgb_out[2] 42
+set_io rgb_out[3] 36
+
+set_io rgb_out[4] 28
+set_io rgb_out[5] 38

@@ -36,3 +36,5 @@ set_io BLU1 9
 set_io BLU0 6
 set_io HSYNC 34
 set_io VSYNC 23
+
+set_io -pullup yes clk_12M 13

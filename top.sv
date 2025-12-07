@@ -18,7 +18,8 @@ module top(
     output logic BLU1,
     output logic BLU0,
     output logic HSYNC,
-    output logic VSYNC
+    output logic VSYNC,
+    input logic clk_12M
 );
 
 
@@ -38,7 +39,7 @@ module top(
 
     // PLL to generate 25.175 MHz VGA clock from 12 MHz input
     my_pll pll_inst (
-        .ref_clk_i(clk),        // 12 MHz input
+        .ref_clk_i(clk_12M),        // 12 MHz input
         .rst_n_i(1'b1),         // No reset for now
         .outcore_o(),           // Unused
         .outglobal_o(vga_clk)   // 25.175 MHz VGA clock
