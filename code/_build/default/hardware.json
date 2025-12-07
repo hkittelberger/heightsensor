@@ -10202,7 +10202,7 @@
       "attributes": {
         "hdlname": "top",
         "top": "00000000000000000000000000000001",
-        "src": "top.sv:1.1-142.10"
+        "src": "top.sv:1.1-143.10"
       },
       "ports": {
         "echo": {
@@ -16216,7 +16216,7 @@
           },
           "attributes": {
             "cell_module_not_derived": "00000000000000000000000000000001",
-            "cell_src": "top.sv:81.21-97.6",
+            "cell_src": "top.sv:82.21-98.6",
             "module": "history_display",
             "module_hdlname": "history_display",
             "module_src": "history_display.sv:1.1-84.10"
@@ -18909,7 +18909,7 @@
           },
           "attributes": {
             "cell_module_not_derived": "00000000000000000000000000000001",
-            "cell_src": "top.sv:62.17-79.6",
+            "cell_src": "top.sv:63.17-80.6",
             "module": "set_reading",
             "module_hdlname": "set_reading",
             "module_src": "set_reading.sv:1.1-188.10"
@@ -31656,7 +31656,7 @@
           },
           "attributes": {
             "cell_module_not_derived": "00000000000000000000000000000001",
-            "cell_src": "top.sv:122.20-130.6",
+            "cell_src": "top.sv:123.20-131.6",
             "module": "my_pattern_gen",
             "module_hdlname": "my_pattern_gen",
             "module_src": "my_pattern_gen.sv:1.1-41.10"
@@ -31674,7 +31674,7 @@
           },
           "attributes": {
             "cell_module_not_derived": "00000000000000000000000000000001",
-            "cell_src": "top.sv:41.12-46.6",
+            "cell_src": "top.sv:41.12-47.6",
             "module": "my_pll",
             "module_hdlname": "my_pll",
             "module_src": "my_pll.sv:1.1-25.10"
@@ -31712,7 +31712,7 @@
             "LOCK": [ 1042 ],
             "PLLOUTCORE": [ 1043 ],
             "PLLOUTGLOBAL": [ 30 ],
-            "REFERENCECLK": [ 29 ],
+            "REFERENCECLK": [ 275 ],
             "RESETB": [ "1" ]
           }
         },
@@ -34611,7 +34611,7 @@
           },
           "attributes": {
             "cell_module_not_derived": "00000000000000000000000000000001",
-            "cell_src": "top.sv:54.12-60.6",
+            "cell_src": "top.sv:55.12-61.6",
             "module": "sensor",
             "module_hdlname": "sensor",
             "module_src": "sensor.sv:1.1-59.10"
@@ -41012,7 +41012,7 @@
           },
           "attributes": {
             "cell_module_not_derived": "00000000000000000000000000000001",
-            "cell_src": "top.sv:112.12-119.6",
+            "cell_src": "top.sv:113.12-120.6",
             "module": "my_vga",
             "module_hdlname": "my_vga",
             "module_src": "my_vga.sv:1.1-63.10"
@@ -47437,7 +47437,7 @@
           "hide_name": 0,
           "bits": [ 26, 26 ],
           "attributes": {
-            "src": "top.sv:109.43-109.54"
+            "src": "top.sv:110.43-110.54"
           }
         },
         "btn": {
@@ -47896,91 +47896,91 @@
           "hide_name": 0,
           "bits": [ 630, 629, 628, 627, 626, 631, 633, 635, 637, 639, 641, 643, 645, 647, 649, 651, 653, 655, 657, 659, 661, 663, 666, 716, 714, 707, 712, 713, 706, 711, 705, 710 ],
           "attributes": {
-            "src": "top.sv:48.18-48.29"
+            "src": "top.sv:49.18-49.29"
           }
         },
         "green_signal": {
           "hide_name": 0,
           "bits": [ 25, 25 ],
           "attributes": {
-            "src": "top.sv:109.29-109.41"
+            "src": "top.sv:110.29-110.41"
           }
         },
         "h_sync": {
           "hide_name": 0,
           "bits": [ 27 ],
           "attributes": {
-            "src": "top.sv:106.11-106.17"
+            "src": "top.sv:107.11-107.17"
           }
         },
         "hist_0": {
           "hide_name": 0,
           "bits": [ 422, 350, 373, 397, 866, 864, 862, 860 ],
           "attributes": {
-            "src": "top.sv:51.17-51.23"
+            "src": "top.sv:52.17-52.23"
           }
         },
         "hist_1": {
           "hide_name": 0,
           "bits": [ 431, 429, 393, 409, 871, 870, 869, 868 ],
           "attributes": {
-            "src": "top.sv:51.25-51.31"
+            "src": "top.sv:52.25-52.31"
           }
         },
         "hist_2": {
           "hide_name": 0,
           "bits": [ 428, 359, 385, 412, 875, 874, 873, 872 ],
           "attributes": {
-            "src": "top.sv:51.33-51.39"
+            "src": "top.sv:52.33-52.39"
           }
         },
         "hist_3": {
           "hide_name": 0,
           "bits": [ 426, 376, 390, 406, 879, 878, 877, 876 ],
           "attributes": {
-            "src": "top.sv:51.41-51.47"
+            "src": "top.sv:52.41-52.47"
           }
         },
         "hist_4": {
           "hide_name": 0,
           "bits": [ 419, 377, 386, 407, 883, 882, 881, 880 ],
           "attributes": {
-            "src": "top.sv:51.49-51.55"
+            "src": "top.sv:52.49-52.55"
           }
         },
         "hist_5": {
           "hide_name": 0,
           "bits": [ 427, 346, 392, 405, 887, 886, 885, 884 ],
           "attributes": {
-            "src": "top.sv:52.17-52.23"
+            "src": "top.sv:53.17-53.23"
           }
         },
         "hist_6": {
           "hide_name": 0,
           "bits": [ 425, 430, 387, 411, 891, 890, 889, 888 ],
           "attributes": {
-            "src": "top.sv:52.25-52.31"
+            "src": "top.sv:53.25-53.31"
           }
         },
         "hist_7": {
           "hide_name": 0,
           "bits": [ 432, 358, 391, 410, 895, 894, 893, 892 ],
           "attributes": {
-            "src": "top.sv:52.33-52.39"
+            "src": "top.sv:53.33-53.39"
           }
         },
         "hist_8": {
           "hide_name": 0,
           "bits": [ 433, 362, 380, 402, 899, 898, 897, 896 ],
           "attributes": {
-            "src": "top.sv:52.41-52.47"
+            "src": "top.sv:53.41-53.47"
           }
         },
         "hist_9": {
           "hide_name": 0,
           "bits": [ 434, 363, 382, 400, 903, 902, 901, 900 ],
           "attributes": {
-            "src": "top.sv:52.49-52.55"
+            "src": "top.sv:53.49-53.55"
           }
         },
         "hist_display.btn": {
@@ -51589,7 +51589,7 @@
         },
         "pll_inst.ref_clk_i": {
           "hide_name": 0,
-          "bits": [ 29 ],
+          "bits": [ 275 ],
           "attributes": {
             "hdlname": "pll_inst ref_clk_i",
             "src": "my_pll.sv:2.11-2.20"
@@ -51607,7 +51607,7 @@
           "hide_name": 0,
           "bits": [ 24, 24 ],
           "attributes": {
-            "src": "top.sv:109.17-109.27"
+            "src": "top.sv:110.17-110.27"
           }
         },
         "seg": {
@@ -53611,7 +53611,7 @@
           "hide_name": 0,
           "bits": [ 28 ],
           "attributes": {
-            "src": "top.sv:106.19-106.25"
+            "src": "top.sv:107.19-107.25"
           }
         },
         "vga_clk": {
@@ -53625,7 +53625,7 @@
           "hide_name": 0,
           "bits": [ 233, 232, 212, 211, 175, 176, 39, 40, 38, 36 ],
           "attributes": {
-            "src": "top.sv:104.17-104.24"
+            "src": "top.sv:105.17-105.24"
           }
         },
         "vga_inst.column_count": {
@@ -54764,7 +54764,7 @@
           "hide_name": 0,
           "bits": [ 231, 230, 229, 221, 145, 139, 140, 138, 136, 134 ],
           "attributes": {
-            "src": "top.sv:104.26-104.33"
+            "src": "top.sv:105.26-105.33"
           }
         }
       }
