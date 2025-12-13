@@ -1,3 +1,7 @@
+// seven_seg.sv
+// Module to convert a 4-bit binary value to 7-segment display encoding
+// TESTING MODULE ONLY.
+
 module seven_seg(
     input logic[3:0] y,
     output logic[6:0] seg

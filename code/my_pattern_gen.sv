@@ -1,3 +1,7 @@
+// my_pattern_gen.sv
+// Simple VGA pattern generator module for testing
+// TESTING MODULE ONLY.
+
 module my_pattern_gen(
     input logic genclock,
     input logic [9:0] genrow,

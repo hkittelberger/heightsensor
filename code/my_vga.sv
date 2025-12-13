@@ -1,3 +1,6 @@
+// my_vga.sv
+// VGA timing generator module for 640x480 @60Hz resolution
+
 module my_vga(
     input logic vga_clock,      // 25.175 MHz
     output logic [9:0] vga_col,

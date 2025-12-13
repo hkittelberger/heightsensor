@@ -1,3 +1,8 @@
+// set_reading.sv
+// Module to process ultrasonic sensor echo width and set reading for display
+// This includes converting echo width to inches, calculating height, and
+// managing a FSM to latch height readings, including history tracking
+
 module set_reading (
     input  logic        clk,
     input  logic [31:0] echo_width,
@@ -25,7 +30,7 @@ module set_reading (
     // ----------------------------------------------------------------
     logic [15:0] inches_raw;
     logic [7:0]  inches_distance;   // raw live distance from sensor
-    logic [7:0]  inches_live;       // calculated height (ground_distance - sensor_distance)
+    logic [7:0]  inches_live;       // calculated height (ground - sensor dist)
 
     convert_echo_to_inches convert_inst (
         .clk       (clk),
@@ -51,7 +56,7 @@ module set_reading (
 
     // Assuming ~12 MHz HFOSC (48 MHz / 4)
     localparam int CLK_FREQ_HZ   = 12_000_000;
-    localparam int HOLD_TIME_SEC = 3;
+    localparam int HOLD_TIME_SEC = 2;
     localparam int HOLD_TICKS    = CLK_FREQ_HZ * HOLD_TIME_SEC;  // 36,000,000
 
     localparam int FLASH_TIME_MS  = 250; // quarter second
@@ -140,6 +145,7 @@ module set_reading (
             end
         endcase
 
+        // flash LED if  successfully saved (testing)
         if (flash_counter != 0)
             flash_counter <= flash_counter - 1;
 

@@ -1,3 +1,6 @@
+// height_sorter.sv
+// Module to sort 10 height readings (inches) from shortest to tallest
+
 module height_sorter (
     input  logic [7:0] hist_0,  // Most recent (input)
     input  logic [7:0] hist_1,

@@ -1,3 +1,6 @@
+// my_pll.sv
+// PLL module to generate 25.175 MHz VGA clock from 12 MHz input clock
+
 module my_pll (
     input ref_clk_i,	// 12 MHz clock from Upduino pin
     input rst_n_i,		// active-low reset

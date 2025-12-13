@@ -1,3 +1,6 @@
+// convert_echo_to_inches.sv
+// Module to convert ultrasonic sensor echo width to distance in inches
+
 module convert_echo_to_inches (
     input logic clk,
     input logic [31:0] echo_width,

@@ -1,15 +1,12 @@
+// top.sv
+// Top-level module integrating ultrasonic sensor reading, VGA display, 
+// and history tracking.
+
 module top(
+    // ultrasonic sensor interface
     input logic echo,
-    input logic btn,           // Button to cycle through history
-    // output logic led,
     output logic trig,
-    output logic [6:0] seg,    // First display (current reading)
-    output logic dig0,
-    output logic dig1,
-    output logic [6:0] seg2,   // Second display (history)
-    output logic dig2,
-    output logic dig3,
-    output logic led_save,
+    
     // VGA outputs
     output logic RED1,
     output logic RED0,
@@ -20,6 +17,16 @@ module top(
     output logic HSYNC,
     output logic VSYNC,
     input logic clk_12M
+
+    // Testing components
+    // output logic [6:0] seg,    // first display (current reading)
+    // output logic dig0,
+    // output logic dig1,
+    // output logic [6:0] seg2,   // second display (history)
+    // output logic dig2,
+    // output logic dig3,
+    // output logic led_save,     // LED to indicate save
+    // input logic btn,           // button to cycle through history
 );
 
 
@@ -39,7 +46,6 @@ module top(
 
     // PLL to generate 25.175 MHz VGA clock from 12 MHz input
     my_pll pll_inst (
-        // .ref_clk_i(clk_12M),        // 12 MHz input
         .ref_clk_i(clk),
         .rst_n_i(1'b1),         // No reset for now
         .outcore_o(),           // Unused
@@ -57,7 +63,6 @@ module top(
         .clk(clk),
         .echo(echo),
         .trig(trig),
-        // .led(led),
         .echo_cycles(echo_cycles)
     );
 
@@ -80,7 +85,8 @@ module top(
         .hist_8_out(hist_8),
         .hist_9_out(hist_9)
     );
-    
+
+    // History display module (testing)
     history_display hist_display (
         .clk(clk),
         .btn(btn),

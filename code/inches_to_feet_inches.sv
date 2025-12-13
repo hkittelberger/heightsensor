@@ -1,3 +1,6 @@
+// inches_to_feet_inches.sv
+// Module to convert total inches (0-99) to feet and inches for display
+
 module inches_to_feet_inches (
     input  logic [7:0] total_inches,    // Total height in inches (0-99)
     output logic [3:0] feet,            // Feet portion (0-8 for heights up to 99")

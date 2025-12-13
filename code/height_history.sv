@@ -1,3 +1,6 @@
+// height_history.sv
+// Module to store the last 10 height measurements in a FIFO manner.
+
 module height_history (
     input  logic       clk,
     input  logic       reset,

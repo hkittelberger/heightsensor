@@ -1,4 +1,4 @@
-timestamp: "07174612932"
+timestamp: "08151710744"
 arch: ICE40
 fpga_info {
   fpga_id: "ice40up5k-sg48"
@@ -25,6 +25,6 @@ apio_env_params {
 }
 target {
   upload {
-    programmer_cmd: "iceprog -d d:3/25 $SOURCE"
+    programmer_cmd: "iceprog -d d:3/37 $SOURCE"
   }
 }

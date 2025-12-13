@@ -1,6 +1,11 @@
+// history_display.sv
+// Module to display height history on a 2-digit 7-segment display.
+// Pressing a button cycles through the last 10 saved heights.
+// TESTING MODULE ONLY.
+
 module history_display (
     input  logic       clk,
-    input  logic       btn,           // Button input (active low, typical for FPGA boards)
+    input  logic       btn,           // Button input to toggle thru history
     input  logic [7:0] hist_0,
     input  logic [7:0] hist_1,
     input  logic [7:0] hist_2,

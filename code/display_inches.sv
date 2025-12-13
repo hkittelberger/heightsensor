@@ -1,3 +1,7 @@
+// display_inches.sv
+// Module to drive a 2-digit 7-segment display showing height in inches.
+// TESTING MODULE ONLY: shows height in inches (0-99) directly.
+
 module display_inches (
     input  logic       clk,
     input  logic [7:0] inches_display,

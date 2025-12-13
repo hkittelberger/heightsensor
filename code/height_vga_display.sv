@@ -1,3 +1,6 @@
+// height_vga_display.sv
+// Module to display height history and live reading on VGA in F'II" format.
+
 module height_vga_display(
     input logic [9:0] Row,
     input logic [9:0] Col,
