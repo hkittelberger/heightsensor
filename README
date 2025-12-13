@@ -1,0 +1,140 @@
+# Height Measurement System with VGA Display
+
+A height detection system using an ultrasonic sensor (HC-SR04) with real-time VGA display output, built for ice40 FPGA (Upduino v3.1).
+
+## Project Overview
+
+This system measures human height by calculating displacement from a configurable ground reference point. It saves the last 10 height measurements and displays them in feet'inches" format on a VGA monitor.
+
+## Hardware Requirements
+
+- **FPGA**: ice40 Upduino v3.1 board
+- **Sensor**: HC-SR04 ultrasonic distance sensor
+- **Display**: VGA-compatible monitor
+- **Optional**: 7-segment displays and button for testing
+
+## Key Features
+
+### Height Measurement
+- **Displacement-based calculation**: Height = Ground Distance - Sensor Reading
+- **Configurable mounting height**: Easily adjust ground reference (currently 84" / 7 feet)
+- **Person detection**: Automatically detects when someone is under the sensor
+- **3-second measurement period**: Captures maximum height during measurement window
+
+### Data Storage
+- **History tracking**: Stores last 10 height measurements chronologically
+- **FIFO buffer**: Automatically evicts oldest measurement when saving new ones
+- **Sorting capability**: Can sort heights from shortest to tallest
+
+### VGA Display
+- **Real-time display**: Shows current live height reading
+- **Historical data**: Displays all 10 saved measurements
+- **Feet'Inches format**: Easy-to-read format (e.g., "6'02"" for 6 feet 2 inches)
+- **Clean interface**: White background with black digits
+
+## File Structure
+
+```
+├── code/
+│   ├── top.sv                    # Top-level module
+│   ├── sensor.sv                 # HC-SR04 sensor interface
+│   ├── set_reading.sv            # Main FSM and measurement logic
+│   ├── height_calculator.sv      # Converts distance to height
+│   ├── height_history.sv         # Stores last 10 measurements
+│   ├── height_sorter.sv          # Sorts heights (optional)
+│   ├── inches_to_feet_inches.sv  # Converts inches to feet'inches"
+│   ├── height_vga_display.sv     # VGA display controller
+│   ├── my_pll.sv                 # Clock generation (25.175 MHz for VGA)
+│   ├── my_vga.sv                 # VGA timing generator
+│   └── rom_*.sv                  # Digit and symbol ROM files (0-9, ', ")
+```
+
+## Configuration
+
+### Mounting Height Adjustment
+Edit `height_calculator.sv` line 10:
+```systemverilog
+localparam logic [7:0] GROUND_DISTANCE_INCHES = 8'd84;  // Change this value
+```
+
+### Detection Threshold
+Edit `set_reading.sv` to change minimum detectable height:
+```systemverilog
+localparam logic [7:0] HEIGHT_THRESHOLD_INCHES = 8'd24;  // Minimum height to detect
+```
+
+## How It Works
+
+1. **Sensor Setup**: Mount HC-SR04 at known height above ground
+2. **Ground Calibration**: System measures distance to ground as reference
+3. **Person Detection**: When height ≥ threshold detected, start 3-second measurement
+4. **Height Calculation**: Height = Mounting Distance - Measured Distance  
+5. **Data Storage**: Save maximum height from 3-second window to history
+6. **Display**: Show current and historical data on VGA monitor
+
+## Build Instructions
+
+```bash
+# Build the project
+apio build
+
+# Upload to FPGA
+apio upload
+
+# Monitor (optional)
+apio monitor
+```
+
+## Pin Assignments
+
+Update `top.pcf` with your specific pin connections:
+
+```
+# Ultrasonic Sensor
+set_io echo [echo_pin]
+set_io trig [trig_pin]
+
+# VGA Output
+set_io RED1 [red1_pin]
+set_io RED0 [red0_pin]
+set_io GRN1 [grn1_pin]
+set_io GRN0 [grn0_pin]
+set_io BLU1 [blu1_pin]
+set_io BLU0 [blu0_pin]
+set_io HSYNC [hsync_pin]
+set_io VSYNC [vsync_pin]
+```
+
+## Display Format
+
+### VGA Output
+- **Resolution**: 640x480 @ 60Hz
+- **Format**: 10 rows showing: "F'II"" (Feet'Inches")
+- **Layout**:
+  - Row 1: Most recent height (hist_0)
+  - Row 2-9: Previous measurements (hist_1-8)
+  - Row 10: Oldest measurement (hist_9)
+  - Right side: Current live reading
+
+### Example Display
+```
+6'02"  ← Most recent saved height
+5'08"  ← Previous measurements
+6'00"
+5'11"
+6'04"
+5'09"
+6'01"
+5'10"
+6'03"
+5'07"  ← Oldest saved height
+
+Current: 0'00"  ← Live reading (right side)
+```
+
+## Troubleshooting
+
+- **No VGA output**: Check clock generation and pin assignments
+- **Incorrect heights**: Adjust `GROUND_DISTANCE_INCHES` in height_calculator.sv
+- **No detection**: Lower `HEIGHT_THRESHOLD_INCHES` in set_reading.sv
+- **Sensor issues**: Verify HC-SR04 connections and power supply
