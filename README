@@ -2,6 +2,9 @@
 
 A height detection system using an ultrasonic sensor (HC-SR04) with real-time VGA display output, built for ice40 FPGA (Upduino v3.1).
 
+# Created by:
+Holden Kittelberger, Brendan Roy, Reed Bodley, Adrian Roup
+
 ## Project Overview
 
 This system measures human height by calculating displacement from a configurable ground reference point. It saves the last 10 height measurements and displays them in feet'inches" format on a VGA monitor.
